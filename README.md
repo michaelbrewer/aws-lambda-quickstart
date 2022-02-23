@@ -35,7 +35,9 @@ fetch('https://<FINAL_URL>/project.zip?name=mouse')
 ## TODO
 
 - [X] Initial protoype webservice
+- [X] Create basic UI and deploy via github pages
+- [ ] Build out a better UI mock using figma
+- [ ] Add stricter cors policy
 - [ ] Add cookiecutter template for rest api (`quickstart-rest-api-sam-python`)
 - [ ] BONUS: Add cookiecutter template for S3 trigger (`quickstart-s3-sam-python`)
-- [ ] Create basic UI and deploy to S3
 - [ ] BONUS: Add CDK templates
