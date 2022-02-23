@@ -1,0 +1,3 @@
+[submodule "layer/cookiecutter-aws-sam-python"]
+	path = layer/cookiecutter-aws-sam-python
+	url = https://github.com/aws-samples/cookiecutter-aws-sam-python

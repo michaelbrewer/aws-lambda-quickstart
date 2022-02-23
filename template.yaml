@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Project generator
+
+Globals:
+  Api:
+    EndpointConfiguration: REGIONAL
+    TracingEnabled: true
+    BinaryMediaTypes:
+      - '*~1*'
+
+Resources:
+  CookieCutter:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: layer
+      CompatibleRuntimes:
+        - python3.9
+
+  BuildTemplateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Tracing: Active
+      MemorySize: 1024
+      Timeout: 30
+      Layers:
+        - !Ref CookieCutter
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: GET
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: BuildTemplateService
+          POWERTOOLS_METRICS_NAMESPACE: QuickStart
+          POWERTOOLS_TRACER_CAPTURE_RESPONSE: false
+          POWERTOOLS_LOGGER_LOG_EVENT: true
+          LOG_LEVEL: DEBUG
+          TEMPLATE_DIR: /opt
+
+Outputs:
+    BuildTemplateApigwURL:
+      Description: "API Gateway endpoint URL for Prod environment for Build Template Function"
+      Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/project.zip"
+
+    BuildTemplateFunction:
+      Description: "Build Template Lambda Function ARN"
+      Value: !GetAtt BuildTemplateFunction.Arn
