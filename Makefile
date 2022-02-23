@@ -8,7 +8,10 @@ update-requirements:
 	pipenv lock -r > src/requirements.txt
 
 invoke:
-	sam local invoke -e events/buildEvent.json
+	sam local invoke BuildTemplateFunction -e events/buildEvent.json
+
+invoke-sam:
+	sam local invoke SamBuildTemplateFunction -e events/buildSamEvent.json
 
 start-api:
 	sam local start-api

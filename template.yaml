@@ -8,40 +8,66 @@ Globals:
     TracingEnabled: true
     BinaryMediaTypes:
       - '*~1*'
+  Function:
+    Runtime: python3.9
+    MemorySize: 1024
+    Timeout: 30
+    Handler: app.lambda_handler
+    Tracing: Active
+    Environment:
+      Variables:
+        POWERTOOLS_METRICS_NAMESPACE: QuickStart
+        POWERTOOLS_TRACER_CAPTURE_RESPONSE: false
+        POWERTOOLS_LOGGER_LOG_EVENT: true
+        LOG_LEVEL: DEBUG
+        TEMPLATE_DIR: /opt
 
 Resources:
   CookieCutter:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      ContentUri: layer
+      ContentUri: ./layer/
+      CompatibleRuntimes:
+        - python3.9
+
+  SamCookieCutter:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: ./sam-layer/
       CompatibleRuntimes:
         - python3.9
 
   BuildTemplateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/
-      Handler: app.lambda_handler
-      Runtime: python3.9
-      Tracing: Active
-      MemorySize: 1024
-      Timeout: 30
+      CodeUri: ./src/
       Layers:
         - !Ref CookieCutter
       Events:
         ApiEvent:
           Type: Api
           Properties:
-            Path: /{proxy+}
+            Path: /project.zip
             Method: ANY
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: BuildTemplateService
-          POWERTOOLS_METRICS_NAMESPACE: QuickStart
-          POWERTOOLS_TRACER_CAPTURE_RESPONSE: false
-          POWERTOOLS_LOGGER_LOG_EVENT: true
-          LOG_LEVEL: DEBUG
-          TEMPLATE_DIR: /opt
+
+  SamBuildTemplateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/
+      Layers:
+        - !Ref SamCookieCutter
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /sam-project.zip
+            Method: ANY
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: BuildSamTemplateService
 
 Outputs:
     BuildTemplateApigwURL:
@@ -50,4 +76,12 @@ Outputs:
 
     BuildTemplateFunction:
       Description: "Build Template Lambda Function ARN"
+      Value: !GetAtt BuildTemplateFunction.Arn
+
+    BuildSamTemplateApigwURL:
+      Description: "API Gateway endpoint URL for Prod environment for Build Sam Template Function"
+      Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/project.zip"
+
+    BuildSamTemplateFunction:
+      Description: "Build Sam Template Lambda Function ARN"
       Value: !GetAtt BuildTemplateFunction.Arn
