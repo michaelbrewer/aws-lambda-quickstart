@@ -33,7 +33,7 @@ Resources:
           Type: Api
           Properties:
             Path: /{proxy+}
-            Method: GET
+            Method: ANY
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: BuildTemplateService

@@ -8,11 +8,12 @@ from aws_lambda_powertools import Tracer, Logger
 from aws_lambda_powertools.event_handler.api_gateway import (
     APIGatewayRestResolver,
     Response,
+    CORSConfig,
 )
 
 tracer = Tracer()
 logger = Logger()
-app = APIGatewayRestResolver()
+app = APIGatewayRestResolver(cors=CORSConfig(allow_origin="*"))
 template_dir = os.environ["TEMPLATE_DIR"] + "/cookiecutter-aws-sam-python"
 # Override the cookiecutter default config to not write to home dir
 DEFAULT_CONFIG["cookiecutters_dir"] = "/tmp/cookiecutters/"
@@ -56,7 +57,7 @@ def build_project(project_name: str) -> bytes:
         return zip_contents
 
 
-@app.get("/project.zip")
+@app.get("/project.zip", cors=True)
 def build():
     project_name = app.current_event.get_query_string_value("name", "helloWorld")
     zip_contents = build_project(project_name)
