@@ -10,7 +10,7 @@
   - `timeout`: defaults to 30, is the timeout of the lambda
   - `trigger`: defaults to rest api (S3 also supported), is the type of service calling the lambda function
   - `type`: defaults to `sam` and can support `cdk`, is the IaC type
-- Template name structure: `quickstart-<name>-<sam>-<language>`
+- Template name structure: `quickstart-<name>-<type>-<language>`
 
 ## UI
 
