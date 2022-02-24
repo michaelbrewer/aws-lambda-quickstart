@@ -3,6 +3,8 @@ import shutil
 import tempfile
 from pathlib import Path
 from typing import Dict
+
+from aws_lambda_powertools.event_handler.exceptions import BadRequestError
 from cookiecutter.config import DEFAULT_CONFIG
 from cookiecutter.main import cookiecutter
 from aws_lambda_powertools import Tracer, Logger
@@ -21,12 +23,16 @@ app = APIGatewayRestResolver(cors=CORSConfig(allow_origin="*"))
 
 
 @tracer.capture_method(capture_response=False)
-def build_project(template_name: str, context: Dict[str, str]) -> bytes:
+def build_template(template_name: str, context: Dict[str, str]) -> Response:
+    project_name = context["project_name"]
+    full_template_dir = os.path.realpath(f"{TEMPLATE_DIR}/{template_name}")
+    if TEMPLATE_DIR != os.path.commonpath((TEMPLATE_DIR, full_template_dir)):
+        raise BadRequestError(f"Invalid template name: {template_name}")
+
     with tempfile.TemporaryDirectory() as tmp_dir:
-        # Execute cookiecutter
         os.chdir(tmp_dir)
         output = cookiecutter(
-            template=TEMPLATE_DIR + "/" + template_name,
+            template=full_template_dir,
             checkout=None,
             no_input=True,
             directory=".",
@@ -36,54 +42,44 @@ def build_project(template_name: str, context: Dict[str, str]) -> bytes:
             default_config=True,
             extra_context=context,
         )
-        logger.debug(f"output file: {output}")
 
-        # Make zip for downloading
         zip_file = shutil.make_archive(
-            base_name=context["project_name"],
+            base_name=project_name,
             format="zip",
             root_dir=".",
-            base_dir=context["project_name"],
+            base_dir=project_name,
         )
-        logger.debug(f"zip file: {zip_file}")
         zip_contents: bytes = Path(zip_file).read_bytes()
 
-        # Clean up
         shutil.rmtree(output)
         os.unlink(zip_file)
 
-        return zip_contents
+        return Response(status_code=200, content_type="application/zip", body=zip_contents)
 
 
 @app.get("/project.zip", cors=True)
 def build() -> Response:
-    """Standard set of PowertTools cookiecutter templates"""
-    project_name = app.current_event.get_query_string_value("name", "helloWorld")
-    context = {
-        "project_name": project_name,
-        "include_safe_deployment": "n",
-    }
-    zip_contents = build_project(template_name="cookiecutter-aws-sam-python", context=context)
-    return Response(status_code=200, content_type="application/zip", body=zip_contents)
+    """Standard set of PowerTools cookiecutter templates"""
+    project_name = app.current_event.get_query_string_value("name") or "hello-world"
+    context = {"project_name": project_name, "include_safe_deployment": "n"}
+    return build_template(template_name="cookiecutter-aws-sam-python", context=context)
 
 
 @app.get("/sam-project.zip", cors=True)
 def sam_build() -> Response:
     """Builds aws-sam-cli-app-templates based projects"""
-    project_name = app.current_event.get_query_string_value("name") or "helloWorld"
+    project_name = app.current_event.get_query_string_value("name") or "hello-world"
     runtime = app.current_event.get_query_string_value("runtime")
-    architecture = app.current_event.get_query_string_value("architecture") or "x86_64"
-    template_name = (
-        app.current_event.get_query_string_value("template")
-        or "aws-sam-cli-app-templates/python3.9/cookiecutter-aws-sam-hello-python"
-    )
+    architecture = app.current_event.get_query_string_value("architecture")
+    template_name = app.current_event.get_query_string_value("template")
+    if None in (runtime, architecture, template_name):
+        raise BadRequestError("Missing a required parameter")
     context = {
         "project_name": project_name,
         "runtime": runtime,
         "architectures": {"value": [architecture]},
     }
-    zip_contents = build_project(template_name=template_name, context=context)
-    return Response(status_code=200, content_type="application/zip", body=zip_contents)
+    return build_template(template_name=template_name, context=context)
 
 
 @tracer.capture_lambda_handler(capture_response=False)

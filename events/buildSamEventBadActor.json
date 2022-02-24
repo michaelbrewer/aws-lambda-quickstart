@@ -4,12 +4,12 @@
     "httpMethod": "GET",
     "isBase64Encoded": true,
     "queryStringParameters": {
-      "architecture": "arm64",
-      "runtime": "python3.9",
-      "template": "aws-sam-cli-app-templates/python3.9/cookiecutter-aws-sam-hello-python"
+      "template": "../../xxx",
+      "runtime": "foo",
+      "architecture": "foo"
     },
     "pathParameters": {
-      "proxy": "/sam-project.zip"
+      "proxy": "/project.zip"
     },
     "stageVariables": {
       "baz": "qux"
@@ -110,7 +110,7 @@
         "userAgent": "Custom User Agent String",
         "user": null
       },
-      "path": "/sam-project.zip",
+      "path": "/project.zip",
       "resourcePath": "/{proxy+}",
       "httpMethod": "GET",
       "apiId": "1234567890",

@@ -13,5 +13,8 @@ invoke:
 invoke-sam:
 	sam local invoke SamBuildTemplateFunction -e events/buildSamEvent.json
 
+invoke-sam-bad:
+	sam local invoke SamBuildTemplateFunction -e events/buildSamEventBadActor.json
+
 start-api:
 	sam local start-api

@@ -5,9 +5,10 @@ Create a mini [Spring initializer](https://start.spring.io/) for AWS Lambda func
 ## Backend service
 
 - Builds a layer for the different cookiecutter templates. (NOTE: This will be limited for what we can bundle)
-- Webservice includes a number of parameters:
+- Webservice includes a number of parameters for the aws lambda powertools templates:
   - `name`: defaults to `hello-world`, is the name of the project
-  - `runtime`: defaults to python3.9, is the laguage runtime version (could also support typescript via nodejs)
+  - `runtime`: defaults to python3.9, is the language runtime version (could also support typescript via nodejs)
+  - `architecture`: defaults to `x86_64`, is the CPU architecture (can also be `arm64`)
   - `memory`: defaults 512, is the memory size of the lambda
   - `timeout`: defaults to 30, is the timeout of the lambda
   - `trigger`: defaults to `rest-api`, is the type of service calling the lambda function (could also support `s3`)
@@ -15,6 +16,8 @@ Create a mini [Spring initializer](https://start.spring.io/) for AWS Lambda func
 - Template repo name structure: `quickstart-<name>-<type>-<language>`
 
 ## UI
+
+A minimal javascript UI using the webservice
 
 ```javascript
 fetch('https://<FINAL_URL>/project.zip?name=mouse')
@@ -34,10 +37,15 @@ fetch('https://<FINAL_URL>/project.zip?name=mouse')
 
 ## TODO
 
-- [X] Initial protoype webservice
-- [X] Create basic UI and deploy via github pages
+- [X] Initial prototype webservice
+- [X] Create basic UI and deploy via GitHub pages
 - [ ] Build out a better UI mock using figma
+- [ ] Clean up and test coverage
 - [ ] Add stricter cors policy
 - [ ] Add cookiecutter template for rest api (`quickstart-rest-api-sam-python`)
-- [ ] BONUS: Add cookiecutter template for S3 trigger (`quickstart-s3-sam-python`)
+- [ ] Add cookiecutter template for http api (`quickstart-http-api-sam-python`)
+- [ ] Add cookiecutter template for s3 api (`quickstart-s3-sam-python`)
+- [ ] BONUS: Add cookiecutter template for rest api (`quickstart-rest-api-sam-typescript`)
+- [ ] BONUS: Add cookiecutter template for http api (`quickstart-http-api-sam-typescript`)
+- [ ] BONUS: Add cookiecutter template for s3 api (`quickstart-s3-sam-typescript`)
 - [ ] BONUS: Add CDK templates
