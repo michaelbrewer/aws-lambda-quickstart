@@ -42,6 +42,7 @@ fetch('https://<FINAL_URL>/project.zip?name=mouse')
 - [ ] Build out a better UI mock using figma
 - [ ] Clean up and test coverage
 - [ ] Add stricter cors policy
+- [ ] Add contributing guide and build tools
 - [ ] Add cookiecutter template for rest api (`quickstart-rest-api-sam-python`)
 - [ ] Add cookiecutter template for http api (`quickstart-http-api-sam-python`)
 - [ ] Add cookiecutter template for s3 api (`quickstart-s3-sam-python`)
