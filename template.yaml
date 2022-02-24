@@ -26,21 +26,21 @@ Resources:
   CookieCutter:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      ContentUri: ./layer/
+      ContentUri: layer
       CompatibleRuntimes:
         - python3.9
 
   SamCookieCutter:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      ContentUri: ./sam-layer/
+      ContentUri: sam-layer
       CompatibleRuntimes:
         - python3.9
 
   BuildTemplateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./src/
+      CodeUri: src
       Layers:
         - !Ref CookieCutter
       Events:
@@ -56,7 +56,7 @@ Resources:
   SamBuildTemplateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./src/
+      CodeUri: src
       Layers:
         - !Ref SamCookieCutter
       Events:

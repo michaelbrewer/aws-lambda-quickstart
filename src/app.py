@@ -5,14 +5,15 @@ from pathlib import Path
 from typing import Dict
 
 from aws_lambda_powertools.event_handler.exceptions import BadRequestError
-from cookiecutter.config import DEFAULT_CONFIG
-from cookiecutter.main import cookiecutter
+from aws_lambda_powertools.logging.correlation_paths import API_GATEWAY_REST
 from aws_lambda_powertools import Tracer, Logger
 from aws_lambda_powertools.event_handler.api_gateway import (
     APIGatewayRestResolver,
     Response,
     CORSConfig,
 )
+from cookiecutter.config import DEFAULT_CONFIG
+from cookiecutter.main import cookiecutter
 
 TEMPLATE_DIR = os.environ["TEMPLATE_DIR"]
 DEFAULT_CONFIG["cookiecutters_dir"] = "/tmp/cookiecutters/"
@@ -22,7 +23,7 @@ logger = Logger()
 app = APIGatewayRestResolver(cors=CORSConfig(allow_origin="*"))
 
 
-@tracer.capture_method(capture_response=False)
+@tracer.capture_method()
 def build_template(template_name: str, context: Dict[str, str]) -> Response:
     project_name = context["project_name"]
     full_template_dir = os.path.realpath(f"{TEMPLATE_DIR}/{template_name}")
@@ -42,7 +43,6 @@ def build_template(template_name: str, context: Dict[str, str]) -> Response:
             default_config=True,
             extra_context=context,
         )
-
         zip_file = shutil.make_archive(
             base_name=project_name,
             format="zip",
@@ -50,14 +50,13 @@ def build_template(template_name: str, context: Dict[str, str]) -> Response:
             base_dir=project_name,
         )
         zip_contents: bytes = Path(zip_file).read_bytes()
-
         shutil.rmtree(output)
         os.unlink(zip_file)
-
         return Response(status_code=200, content_type="application/zip", body=zip_contents)
 
 
 @app.get("/project.zip", cors=True)
+@tracer.capture_method()
 def build() -> Response:
     """Standard set of PowerTools cookiecutter templates"""
     project_name = app.current_event.get_query_string_value("name") or "hello-world"
@@ -66,6 +65,7 @@ def build() -> Response:
 
 
 @app.get("/sam-project.zip", cors=True)
+@tracer.capture_method()
 def sam_build() -> Response:
     """Builds aws-sam-cli-app-templates based projects"""
     project_name = app.current_event.get_query_string_value("name") or "hello-world"
@@ -82,7 +82,7 @@ def sam_build() -> Response:
     return build_template(template_name=template_name, context=context)
 
 
-@tracer.capture_lambda_handler(capture_response=False)
-@logger.inject_lambda_context(log_event=True)
+@tracer.capture_lambda_handler()
+@logger.inject_lambda_context(correlation_id_path=API_GATEWAY_REST)
 def lambda_handler(event, context):
     return app(event, context)
