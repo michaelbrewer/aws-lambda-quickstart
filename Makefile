@@ -18,3 +18,8 @@ invoke-sam-bad:
 
 start-api:
 	sam local start-api
+
+deploy:
+	sam validate
+	sam build
+	sam deploy
