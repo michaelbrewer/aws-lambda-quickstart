@@ -18,6 +18,7 @@ from cookiecutter.main import cookiecutter
 TEMPLATE_DIR = os.environ["TEMPLATE_DIR"]
 DEFAULT_CONFIG["cookiecutters_dir"] = "/tmp/cookiecutters/"
 DEFAULT_CONFIG["replay_dir"] = "/tmp/cookiecutter_replay/"
+SUPPORTED_TRIGGERS = ["rest-api", "s3", "s3-object-lambda"]
 tracer = Tracer()
 logger = Logger()
 app = APIGatewayRestResolver(cors=CORSConfig(allow_origin="*"))
@@ -59,9 +60,33 @@ def build_template(template_name: str, context: Dict[str, str]) -> Response:
 @tracer.capture_method()
 def build() -> Response:
     """Standard set of PowerTools cookiecutter templates"""
+    trigger = app.current_event.get_query_string_value("trigger") or "rest-api"
+    if trigger not in SUPPORTED_TRIGGERS:
+        raise BadRequestError(f"Unsupported trigger: {trigger}")
     project_name = app.current_event.get_query_string_value("name") or "hello-world"
-    context = {"project_name": project_name, "include_safe_deployment": "n"}
-    return build_template(template_name="cookiecutter-aws-sam-python", context=context)
+
+    if trigger == "rest-api":
+        # Temp solution to support "cookiecutter-aws-sam-python"
+        template_name = "cookiecutter-aws-sam-python"
+        context = {"project_name": project_name, "include_safe_deployment": "n"}
+    else:
+        template_name = "cookiecutter-aws-lambda-powertools"
+        service_name = app.current_event.get_query_string_value("service_name") or "example"
+        runtime = app.current_event.get_query_string_value("runtime") or "python3.9"
+        architecture = app.current_event.get_query_string_value("architecture") or "x86_64"
+        memory = app.current_event.get_query_string_value("memory") or "512"
+        timeout = app.current_event.get_query_string_value("timeout") or "25"
+        context = {
+            "project_name": project_name,
+            "service_name": service_name,
+            "runtime": runtime,
+            "timeout": timeout,
+            "memory": memory,
+            "trigger": trigger,
+            "architecture": architecture,
+        }
+    logger.debug(f"Building project {template_name} with template {context}")
+    return build_template(template_name=template_name, context=context)
 
 
 @app.get("/sam-project.zip", cors=True)

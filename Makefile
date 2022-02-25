@@ -16,6 +16,9 @@ invoke-sam:
 invoke-sam-bad:
 	sam local invoke SamBuildTemplateFunction -e events/buildSamEventBadActor.json
 
+invoke-powertools:
+	sam local invoke BuildTemplateFunction -e events/buildPowerToolsEvent.json
+
 start-api:
 	sam local start-api
 

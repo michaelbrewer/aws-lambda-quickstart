@@ -4,3 +4,6 @@
 [submodule "sam-layer/aws-sam-cli-app-templates"]
 	path = sam-layer/aws-sam-cli-app-templates
 	url = https://github.com/aws/aws-sam-cli-app-templates
+[submodule "layer/cookiecutter-aws-lambda-powertools"]
+	path = layer/cookiecutter-aws-lambda-powertools
+	url = git@github.com:michaelbrewer/cookiecutter-aws-lambda-powertools.git
