@@ -19,21 +19,7 @@ Create a mini [Spring initializer](https://start.spring.io/) for AWS Lambda func
 
 A minimal javascript UI using the webservice
 
-```javascript
-fetch('https://<FINAL_URL>/project.zip?name=mouse')
-  .then(resp => resp.blob())
-  .then(blob => {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = url;
-    a.download = 'generated-project.zip';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-  })
-  .catch(() => alert('Failed to generate project!'));
-```
+![QuickStart tool](media/quickstart-tool.png)
 
 ## TODO
 
