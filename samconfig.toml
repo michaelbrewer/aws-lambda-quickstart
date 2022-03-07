@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "build-template"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1f3n48wqwiqus"
+s3_prefix = "build-template"
+region = "us-east-2"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
