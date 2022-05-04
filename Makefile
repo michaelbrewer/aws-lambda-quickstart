@@ -5,7 +5,7 @@ dev:
 	pipenv install
 
 update-requirements:
-	pipenv lock -r > src/requirements.txt
+	pipenv requirements > src/requirements.txt
 
 invoke:
 	sam local invoke BuildTemplateFunction -e events/buildEvent.json
@@ -27,3 +27,6 @@ deploy:
 	sam validate
 	sam build
 	sam deploy
+
+clean:
+	pipenv --rm
