@@ -23,6 +23,7 @@ start-api:
 	sam local start-api
 
 deploy:
+	cfn-lint template.yaml
 	sam validate
 	sam build
 	sam deploy
