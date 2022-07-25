@@ -29,4 +29,13 @@ deploy:
 	sam deploy
 
 clean:
+	rm -Rf .aws-sam
 	pipenv --rm
+
+pr:
+	cfn-lint template.yaml
+	sam validate
+	sam build
+	sam local invoke SamBuildTemplateFunction -e events/buildSamEvent.json
+	sam local invoke SamBuildTemplateFunction -e events/buildSamEventBadActor.json
+	sam local invoke BuildTemplateFunction -e events/buildPowerToolsEvent.json
