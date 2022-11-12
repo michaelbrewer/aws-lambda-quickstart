@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 cookiecutter = "*"
 aws-lambda-powertools = "*"
+aws-xray-sdk = "*"
 
 [dev-packages]
 
