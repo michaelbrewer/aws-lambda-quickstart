@@ -39,3 +39,6 @@ pr:
 	sam local invoke SamBuildTemplateFunction -e events/buildSamEvent.json
 	sam local invoke SamBuildTemplateFunction -e events/buildSamEventBadActor.json
 	sam local invoke BuildTemplateFunction -e events/buildPowerToolsEvent.json
+
+update:
+	pipenv update
